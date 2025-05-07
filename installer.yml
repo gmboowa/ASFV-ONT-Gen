@@ -1,0 +1,22 @@
+name: asfv-ont-gen
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - fastp
+  - nanostat
+  - nanoplot
+  - filtlong
+  - flye
+  - raven-assembler
+  - canu
+  - medaka
+  - racon
+  - prokka
+  - prodigal
+  - diamond
+  - mafft
+  - iqtree
+  - abricate
+  - samtools
+  - minimap2
