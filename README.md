@@ -69,10 +69,6 @@ Edit the `config.yaml` for tool-specific parameters.
 
 Please cite this repository and each software tool used within the workflow.
 
----
 
-## Maintainer
 
-**Gerald Mboowa**  
-Broad Institute | Africa CDC  
-[Email](mailto:your_email@example.com)
+
