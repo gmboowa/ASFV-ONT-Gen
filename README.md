@@ -37,6 +37,8 @@ A bioinformatics pipeline for processing Oxford Nanopore sequencing data, perfor
 
 ## Installation <a name="installation"></a>
 
+Make sure you have Miniconda or Anaconda on your system
+
 Create and activate the Conda environment:
 
 ```bash
