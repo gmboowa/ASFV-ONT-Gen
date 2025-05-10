@@ -89,4 +89,4 @@ python AFSV_ont_pipeline.py \
 - **Dependency issues:** Update conda with `conda env update -f AFSV_ont.yml`
 
 ## License <a name="license"></a>
-MIT License - See LICENSE for details.
+MIT License 
