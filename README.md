@@ -5,70 +5,89 @@
 
 ---
 
-## Features
+## Table of Contents
+1. [Overview](#overview)
+2. [Workflow](#workflow)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Inputs/Outputs](#inputs-and-outputs)
+6. [Dependencies](#dependencies)
+7. [Examples](#examples)
+8. [Troubleshooting](#troubleshooting)
+9. [License](#license)
 
-- Preconfigured for ASFV long-read sequencing
-- Quality control using Fastp and NanoPlot
-- Assembly with Flye, Raven, or Canu
-- Reference-based polishing with Medaka and Racon
-- Functional annotation and gene prediction
-- Phylogenetic analysis using MAFFT and IQ-TREE
 
----
+![Pipeline Workflow](ASFV-ONT-Gen_Workflow.png)
 
-## Workflow Overview
-
-![ASFV-ONT-Gen Workflow](ASFV-ONT-Gen_Workflow.png)
-
-> *A visual representation of the ASFV-ONT-Gen pipeline, including both de novo and reference-based assembly, variant calling, indel analysis, and phylogenetic inference.*
-
----
-
-## Input
-
-- Raw FASTQ files from ONT sequencing
-- ASFV reference genome (e.g., `NC_044959.2.fasta`)
-
----
-
-## Installation
+## Installation <a name="installation"></a>
 
 ```bash
-conda env create -f installer.yml
-conda activate asfv-ont-gen
+# Clone repository
+git clone https://github.com/gmboowa/ASFV-ONT-Gen.git
+cd ASFV-ONT-Gen
+
+# Create conda environment
+conda env create -f AFSV_ont.yml
+conda activate AFSV_ont
+
+# Install Kraken2 database (optional)
+scripts/setup_kraken_db.sh
 ```
 
----
-
-## Usage
+## Usage <a name="usage"></a>
 
 ```bash
-bash run_asfv_ont_gen.sh \
-  -i data/reads.fastq \
-  -r references/NC_044959.2.fasta \
-  -o results/ \
-  --min_length 1000 \
-  --threads 8
+
+python AFSV_ont_pipeline.py -inputs samples.txt -reference reference.fasta -threads 8
+
 ```
 
-Edit the `config.yaml` for tool-specific parameters.
+## Inputs and Outputs <a name="inputs-and-outputs"></a>
 
----
+### Inputs
 
-## Output
+| File Type      | Description            |
+|----------------|------------------------|
+| *.fastq        | ONT sequence files     |
+| reference.fasta| ASFV reference genome  |
 
-- Filtered reads
-- Assembled genome and polished sequences
-- Functional annotations
-- Multiple sequence alignment (`.aln`)
-- Phylogenetic tree (`.nwk`)
+### Output Structure
 
----
+```bash
+results/
+├── qc/                  # Quality reports
+├── assemblies/De no vo & reference-based          # Final genomes
+├── variants_called/            # SNP/indel calls
+├── phylogeny/           # Tree files
+└── reports/             # Summary reports
+```
 
-## Citation
+## Dependencies <a name="dependencies"></a>
 
-Please cite this repository and each software tool used within the workflow.
+| Tool       | Version | Role        |
+|------------|---------|-------------|
+| Flye       | 2.9+    | Assembly    |
+| Medaka     | 1.7+    | Polishing   |
+| Minimap2   | 2.24+   | Alignment   |
+| FastQC     | 0.11+   | QC          |
+| MultiQC    | 1.13+   | Reporting   |
 
+## Examples <a name="examples"></a>
 
+```bash
+# Run test dataset
+python AFSV_ont_pipeline.py \
+  -inputs test_data/samples.txt \
+  -reference test_data/NC_044959.2.fasta
+```
 
+## Troubleshooting <a name="troubleshooting"></a>
 
+**Common Issues:**
+
+- **Memory errors:** Reduce thread count with `-threads 4`
+- **Assembly failures:** Check `results/qc/nanoplot/` for read quality
+- **Dependency issues:** Update conda with `conda env update -f AFSV_ont.yml`
+
+## License <a name="license"></a>
+MIT License - See LICENSE for details.
