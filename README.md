@@ -1,4 +1,3 @@
-
 # ASFV-ONT-Gen: A Pipeline for African Swine Fever Virus ONT Whole-Genome Analysis
 
 **ASFV-ONT-Gen** is a robust and modular pipeline designed for analyzing whole-genome sequencing data of African Swine Fever Virus (ASFV) using Oxford Nanopore Technologies (ONT). It covers preprocessing, assembly, annotation, and phylogenetic analysis using a reference genome such as `NC_044959.2.fasta`.
