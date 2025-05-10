@@ -317,7 +317,7 @@ def main():
     quality_control(fastq_list)
     genome_id, jar_path, config_file = configure_snpeff(args.reference)
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         futures = []
         for fq in fastq_list:
             sample = extract_sample_name(fq)
