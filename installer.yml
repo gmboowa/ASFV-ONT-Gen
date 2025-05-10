@@ -1,22 +1,38 @@
-name: asfv-ont-gen
+name: AFSV_ont
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
+  - defaults
+
 dependencies:
-  - fastp
-  - nanostat
-  - nanoplot
-  - filtlong
-  - flye
-  - raven-assembler
-  - canu
-  - medaka
-  - racon
-  - prokka
-  - prodigal
-  - diamond
-  - mafft
-  - iqtree
-  - abricate
-  - samtools
+  # Core environment
+  - python=3.9
+  - openssl=1.1.1
+  - pip
+  - openjdk=21.0.2
+
+  # Bioinformatics tools
+  - fastqc
+  - nanoplot=1.40.2
   - minimap2
+  - samtools
+  - bcftools
+  - multiqc
+  - spades
+  - kraken2
+  - mafft
+  - fasttree
+  - seqtk
+  - flye
+  - snpeff
+  - racon
+  - trimal
+  - pysam=0.21.0
+
+  # Scientific Python stack
+  - pandas
+  - biopython
+  - jsonschema
+  - tqdm
+  - matplotlib
+  - seaborn
