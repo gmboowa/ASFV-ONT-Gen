@@ -57,7 +57,9 @@ scripts/setup_kraken_db.sh
 
 # Run whole-genome analysis
 
-python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8
+**`python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8`**
+
+
 
 # Create conda environment for phylogenetic analysis
 
@@ -69,7 +71,7 @@ conda activate asfv_phylogeny
 
 # Run phylogenetic inference
 
-asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
+**`asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000`**
 
 
 ```
