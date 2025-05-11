@@ -5,7 +5,7 @@
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Quality control**: FastQC, NanoPlot, MultiQC
 - **Read mapping**: Minimap2
@@ -22,7 +22,7 @@
 
 ![Pipeline Workflow](ASFV-ONT-Gen_Workflow.png)
 
-## 🛠️ Installation
+## Installation
 
 ### Prerequisites
 
@@ -47,7 +47,7 @@ bash scripts/setup_kraken_db.sh
 
 ---
 
-## 📦 Usage
+## Usage
 
 ### Run whole-genome analysis
 
@@ -95,7 +95,7 @@ asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
 
 ---
 
-### Output Structure
+### Output structure
 
 ```text
 results/
@@ -118,8 +118,8 @@ results/
 | Issue               | Recommendation                                                  |
 |---------------------|-----------------------------------------------------------------|
 | Memory errors       | Reduce thread count (e.g., `-threads 4`)                        |
-| Assembly failures   | Inspect quality reports in `results/qc/nanoplot/`              |
-| Dependency problems | Update Conda with `conda env update -f AFSV_ont.yml`           |
+| Assembly failures   | Inspect quality reports in `results/qc/nanoplot/`               |
+| Dependency problems | Update Conda with `conda env update -f AFSV_ont.yml`            |
 
 ---
 
