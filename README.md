@@ -1,22 +1,26 @@
 # ASFV-ONT-Gen: A Pipeline for African Swine Fever Virus ONT Whole-Genome Analysis
 
-**ASFV-ONT-Gen** is a robust and modular pipeline designed for analyzing whole-genome sequencing data of African Swine Fever Virus (ASFV) using Oxford Nanopore Technologies (ONT). It covers preprocessing, assembly, annotation, and phylogenetic analysis using a reference genome such as `NC_044959.2.fasta`.
+**ASFV-ONT-Gen** is a modular pipeline designed for analyzing whole-genome sequencing data of African Swine Fever Virus (ASFV) using Oxford Nanopore Technologies (ONT). It covers preprocessing, assembly, annotation, and phylogenetic analysis using a selected reference genome such as `NC_044959.2.fasta`.
 
 ---
 
 # ASFV Oxford Nanopore Pipeline
 
-A bioinformatics pipeline for processing Oxford Nanopore sequencing data, performing quality control, assembly, variant calling, annotation and taxonomic classification.
+A bioinformatics pipeline for processing Oxford Nanopore sequencing data, performing quality control, assembly, variant calling, annotation & taxonomic classification.
 
 ## Features
 
-- **Quality Control**: FastQC and NanoPlot for read quality assessment.
-- **Read Mapping**: Minimap2 for alignment to a reference genome.
-- **Taxonomic Classification**: Kraken2 with a custom viral database.
-- **Assembly**: Both de novo (Flye) and reference-based (Medaka) assembly.
-- **Variant Calling**: Bcftools for SNP/indel detection and snpEff for annotation.
+- **Quality control**: FastQC + NanoPlot + MultiQC for read quality assessment.
+- **Read mapping**: Minimap2 for alignment to a selected reference genome.
+- **Taxonomic classification**: Kraken2 with viral database.
+- **Assembly**: Both de novo (Flye + Medaka polish) & reference-based assembly.
+- **Variant calling & annotation**: Bcftools for SNP/INDEL detection & snpEff for annotation.
 - **Multi-threading**: Utilizes concurrent processing for efficiency.
-- **Summary Reports**: MultiQC, mapped reads summary, and assembly statistics.
+- **Summary reports**: MultiQC, mapped reads summary, & assembly statistics.
+- **Phylogenetics**:
+  - MAFFT for multiple sequence alignment
+  - IQ-TREE for robust phylogeny (ModelFinder + UFBoot)
+  - ggtree for tree visualization
 
 ## Installation
 
@@ -24,13 +28,13 @@ A bioinformatics pipeline for processing Oxford Nanopore sequencing data, perfor
 
 - [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) installed.
 - Java 21+ (required for snpEff).
+### Install remaining dependencies
+   conda install -c bioconda -c conda-forge \
+   fastqc nanoplot minimap2 samtools bcftools \
+   medaka multiqc spades kraken2 mafft fasttree \
+   seqtk flye krona snpeff iqtree trimal r-ggplot2 r-ggtree
 
 ### Setup
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/yourusername/AFSV_ONT_Pipeline.git
-   cd AFSV_ONT_Pipeline
 
 
 ![Pipeline Workflow](ASFV-ONT-Gen_Workflow.png)
@@ -42,58 +46,87 @@ Make sure you have Miniconda or Anaconda on your system
 Create and activate the Conda environment:
 
 ```bash
-# Clone repository
-git clone https://github.com/gmboowa/ASFV-ONT-Gen.git
-cd ASFV-ONT-Gen
 
-# Create conda environment
+# Create conda environment for assembly, variant calling and taxonomic profiling
+
 conda env create -f AFSV_ont.yml
 conda activate AFSV_ont
 conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools medaka multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
 
-# Install Kraken2 database (optional)
+# Install Kraken2 database 
 scripts/setup_kraken_db.sh
-```
 
 ## Usage <a name="usage"></a>
 
 ```bash
 
-Command
+Commands
 
-python AFSV_ont_pipeline.py -inputs samples.txt -reference reference.fasta -threads 8
+python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8
+
+```bash
+
+# Create conda environment for phylogenetic analysis
+
+conda env create -f asfv_phylogeny.yml
+
+conda activate asfv_phylogeny
+
+## Usage <a name="usage"></a>
+
+```bash
+
+Commands
+
+asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
+
+
 
 ```
 
 ## Inputs and Outputs <a name="inputs-and-outputs"></a>
 
-### Inputs
+### Inputs for genomic analysis
 
 | File Type      | Description            |
 |----------------|------------------------|
 | *.fastq        | ONT sequence files     |
 | reference.fasta| ASFV reference genome  |
 
-### Output Structure
+### Inputs for phylogenetic analysis 
+
+Configuration Options
+
+**Parameter**	     **Description**	                     **Default**
+-inputs	           File with FASTQ paths	               Required
+-reference	        ASFV reference genome	               Required
+-threads	           CPU threads for parallel steps	      8
+-bootstrap	        Phylogenetic bootstrap replicates	   1000
+-min_coverage	     Consensus calling threshold	         20x
+-tree_model	        IQ-TREE substitution model	         MFP (auto)
+-aln_consensus	     trimAl conservation threshold	      60%
+
+
+### Output structure
 
 Results are saved in ./results:
 
 ```bash
 results/
-├── qc/                  # FastQC and NanoPlot reports
-├── nanoplot/            # NanoPlot visualizations
-├── multiqc/             # MultiQC summary
-├── <summary>/
-|   |-species_abundance_summary.csv    # Kraken2 species abundance summaries
-├── krona/               # Krona interactive reports
-├── <sample_name>/       # Per-sample outputs
-│   ├── denovo_assembly/ # Flye assembly files
-│   ├── reference_assembly/ # Medaka consensus
-│   ├── variants/        # VCF and annotated variants --- SNPS and Indels
-│   └── kraken2_report.txt
-├── mapped_reads_summary.tsv       # Mapped reads statistics
-└── assembly_stats_summary.tsv     # Assembly metrics (N50, L50, etc.)
+
+├── 00_RawDataQC/          # FastQC/NanoPlot reports
+├── 01_Assemblies/         # Flye & Medaka outputs
+├── 02_Variants/           # VCF files & annotations
+├── 03_Phylogeny/
+│   ├── alignment.fasta    # MAFFT multiple alignment
+│   ├── trimmed_alignment/ # trimAl filtered sequences
+│   ├── iqtree_results/    # Tree files + support values
+│   └── phylogeny.pdf      # Final ggtree visualization
+├── 04_Taxonomy/           # Kraken2/Krona reports
+└── reports/               # MultiQC + summary stats
+
 ```
+```bash
 
 ## Dependencies <a name="dependencies"></a>
 
