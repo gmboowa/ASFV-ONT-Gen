@@ -97,15 +97,16 @@ asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
 
 Configuration Options
 
-**Parameter**	     **Description**	                     **Default**
--inputs	           File with FASTQ paths	               Required
--reference	        ASFV reference genome	               Required
--threads	           CPU threads for parallel steps	      8
--bootstrap	        Phylogenetic bootstrap replicates	   1000
--min_coverage	     Consensus calling threshold	         20x
--tree_model	        IQ-TREE substitution model	         MFP (auto)
--aln_consensus	     trimAl conservation threshold	      60%
 
+| Parameter         | Description                          | Default       |
+|-------------------|--------------------------------------|---------------|
+| `-inputs`         | File with FASTQ paths                | Required      |
+| `-reference`      | ASFV reference genome                | Required      |
+| `-threads`        | CPU threads for parallel steps       | `8`           |
+| `-bootstrap`      | Phylogenetic bootstrap replicates    | `1000`        |
+| `-min_coverage`   | Consensus calling threshold          | `20x`         |
+| `-tree_model`     | IQ-TREE substitution model           | `MFP (auto)`  |
+| `-aln_consensus`  | trimAl conservation threshold        | `60%`         |
 
 ### Output structure
 
