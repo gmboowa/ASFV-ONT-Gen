@@ -4,10 +4,6 @@
 
 ---
 
-# ASFV Oxford Nanopore Pipeline
-
-A bioinformatics pipeline for processing Oxford Nanopore sequencing data, performing quality control, assembly, variant calling, annotation, taxonomic classification and phylogenetic analysis.
-
 ## Features
 
 - **Quality control**: FastQC + NanoPlot + MultiQC for read quality assessment.
