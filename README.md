@@ -6,7 +6,7 @@
 
 # ASFV Oxford Nanopore Pipeline
 
-A bioinformatics pipeline for processing Oxford Nanopore sequencing data, performing quality control, assembly, variant calling, annotation & taxonomic classification.
+A bioinformatics pipeline for processing Oxford Nanopore sequencing data, performing quality control, assembly, variant calling, annotation, taxonomic classification and phylogenetic analysis.
 
 ## Features
 
@@ -51,20 +51,17 @@ Create and activate the Conda environment:
 
 conda env create -f AFSV_ont.yml
 conda activate AFSV_ont
-conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools medaka multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
+conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools medaka
+multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
 
 # Install Kraken2 database 
 scripts/setup_kraken_db.sh
 
 ## Usage
 
-
-
-Commands
+# Run whole-genome analysis
 
 python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8
-
-
 
 # Create conda environment for phylogenetic analysis
 
@@ -74,12 +71,9 @@ conda activate asfv_phylogeny
 
 ## Usage 
 
-
-
-Commands
+# Run phylogenetic inference
 
 asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
-
 
 
 ```
@@ -95,7 +89,7 @@ asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
 
 ### Inputs for phylogenetic analysis 
 
-Configuration Options
+Configuration 
 
 
 | Parameter         | Description                          | Default       |
@@ -125,38 +119,6 @@ results/
 │   └── phylogeny.pdf      # Final ggtree visualization
 ├── 04_Taxonomy/           # Kraken2/Krona reports
 └── reports/               # MultiQC + summary stats
-
-
-```
-
-## Dependencies <a name="dependencies"></a>
-
-Workflow Overview
-
-Quality Control: Generate QC reports for raw reads.
-
-Read Mapping: Align reads to the reference genome.
-
-Taxonomic Classification: Identify species composition with Kraken2.
-
-Assembly:
-
-De novo assembly using Flye.
-
-Reference-based consensus with Medaka.
-
-Variant Calling: Identify variants and annotate using snpEff.
-
-Summarization: Aggregate results into TSV files and MultiQC reports.
-
-Notes
-
-The Kraken2 database (kraken2_viral_db) will be auto-built if missing.
-
-Ensure SNPEFF_HOME is set (automatically configured in the script).
-
-Edit Entrez.email in the script if NCBI API access is required.
-
 
 
 ```
