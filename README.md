@@ -34,7 +34,7 @@ A bioinformatics pipeline for processing Oxford Nanopore sequencing data, perfor
    medaka multiqc spades kraken2 mafft fasttree \
    seqtk flye krona snpeff iqtree trimal r-ggplot2 r-ggtree
 
-### Setup
+### Pipeline Workflow
 
 
 ![Pipeline Workflow](ASFV-ONT-Gen_Workflow.png)
