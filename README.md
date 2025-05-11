@@ -59,6 +59,9 @@ scripts/setup_kraken_db.sh
 **python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8**
 
 
+```bash
+python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8
+
 
 # Create conda environment for phylogenetic analysis
 
