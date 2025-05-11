@@ -24,11 +24,10 @@
 
 - [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) installed.
 - Java 21+ (required for snpEff).
+  
 ### Install remaining dependencies
-   conda install -c bioconda -c conda-forge \
-   fastqc nanoplot minimap2 samtools bcftools \
-   medaka multiqc spades kraken2 mafft fasttree \
-   seqtk flye krona snpeff iqtree trimal r-ggplot2 r-ggtree
+   conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools \
+   medaka multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff iqtree trimal r-ggplot2 r-ggtree
 
 ### Pipeline Workflow
 
