@@ -45,7 +45,7 @@ Make sure you have Miniconda or Anaconda on your system
 
 Create and activate the Conda environment:
 
-```bash
+```
 
 # Create conda environment for assembly, variant calling and taxonomic profiling
 
@@ -56,15 +56,15 @@ conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcfto
 # Install Kraken2 database 
 scripts/setup_kraken_db.sh
 
-## Usage <a name="usage"></a>
+## Usage
 
-```bash
+
 
 Commands
 
 python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8
 
-```bash
+
 
 # Create conda environment for phylogenetic analysis
 
@@ -72,9 +72,9 @@ conda env create -f asfv_phylogeny.yml
 
 conda activate asfv_phylogeny
 
-## Usage <a name="usage"></a>
+## Usage 
 
-```bash
+
 
 Commands
 
@@ -112,7 +112,7 @@ Configuration Options
 
 Results are saved in ./results:
 
-```bash
+```
 results/
 
 ├── 00_RawDataQC/          # FastQC/NanoPlot reports
@@ -126,8 +126,8 @@ results/
 ├── 04_Taxonomy/           # Kraken2/Krona reports
 └── reports/               # MultiQC + summary stats
 
+
 ```
-```bash
 
 ## Dependencies <a name="dependencies"></a>
 
@@ -150,22 +150,18 @@ Variant Calling: Identify variants and annotate using snpEff.
 Summarization: Aggregate results into TSV files and MultiQC reports.
 
 Notes
+
 The Kraken2 database (kraken2_viral_db) will be auto-built if missing.
 
 Ensure SNPEFF_HOME is set (automatically configured in the script).
 
 Edit Entrez.email in the script if NCBI API access is required.
 
-## Examples <a name="examples"></a>
 
-```bash
-# Run test dataset
-python AFSV_ont_pipeline.py \
-  -inputs test_data/samples.txt \
-  -reference test_data/NC_044959.2.fasta
+
 ```
 
-## Troubleshooting <a name="troubleshooting"></a>
+## Troubleshooting
 
 **Common Issues:**
 
@@ -173,5 +169,5 @@ python AFSV_ont_pipeline.py \
 - **Assembly failures:** Check `results/qc/nanoplot/` for read quality
 - **Dependency issues:** Update conda with `conda env update -f AFSV_ont.yml`
 
-## License <a name="license"></a>
+## License
 MIT License 
