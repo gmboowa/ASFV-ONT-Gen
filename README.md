@@ -42,7 +42,7 @@ Create and activate the Conda environment:
 
 ```
 
-# Create conda environment for assembly, variant calling and taxonomic profiling
+## Create conda environment for assembly, variant calling and taxonomic profiling
 
 conda env create -f AFSV_ont.yml
 conda activate AFSV_ont
@@ -54,16 +54,13 @@ scripts/setup_kraken_db.sh
 
 ## Usage
 
-# Run whole-genome analysis
+**Run whole-genome analysis:**
 
 **python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8**
 
 
-```bash
-python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8
 
-
-# Create conda environment for phylogenetic analysis
+## Create conda environment for phylogenetic analysis
 
 conda env create -f asfv_phylogeny.yml
 
@@ -71,7 +68,7 @@ conda activate asfv_phylogeny
 
 ## Usage 
 
-# Run phylogenetic inference
+**Run phylogenetic inference:**
 
 **asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000**
 
