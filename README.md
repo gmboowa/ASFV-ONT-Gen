@@ -29,7 +29,7 @@
    conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools \
    medaka multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff iqtree trimal r-ggplot2 r-ggtree
 
-### Pipeline Workflow
+### Pipeline workflow
 
 
 ![Pipeline Workflow](ASFV-ONT-Gen_Workflow.png)
@@ -56,7 +56,7 @@ scripts/setup_kraken_db.sh
 
 # Run whole-genome analysis
 
-**`python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8`**
+**python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8**
 
 
 
@@ -70,12 +70,12 @@ conda activate asfv_phylogeny
 
 # Run phylogenetic inference
 
-**`asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000`**
+**asfv_phylogeny.py  -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000**
 
 
 ```
 
-## Inputs and Outputs <a name="inputs-and-outputs"></a>
+## Inputs and outputs <a name="inputs-and-outputs"></a>
 
 ### Inputs for genomic analysis
 
