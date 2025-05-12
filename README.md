@@ -37,8 +37,9 @@
 Ensure these tools are installed in your environment:
 
 
-# Tool	Installation Command
+# Tool	installation command
 
+```bash
 
 ncbi-datasets-cli	conda install -c bioconda ncbi-datasets-cli
 minimap2	conda install -c bioconda minimap2
@@ -50,22 +51,24 @@ hostile	conda install -c bioconda hostile
 conda create -n hostile_env -c bioconda ncbi-datasets-cli minimap2 hostile
 conda activate hostile_env
 
-Required Arguments:
+Required arguments:
 
-Argument	Description
+Argument	description
 
 --fasta	NCBI accession (e.g., GCF_000003025.6) or path to existing FASTA file
 -i/--input	Text file listing paths to FASTQ files (one per line)
 -o/--output	Directory to store all results
 
-Optional Arguments:
+Optional arguments:
 
-Argument	Default	Description
+Argument	default	description
 --index-dir	minimap2_index	Directory for Minimap2 indexes
 --reference-dir	references	Directory for downloaded NCBI references
 
 
-### Basic Usage
+```
+
+### Basic usage
 
 
 ```bash
@@ -75,7 +78,10 @@ python3 hostile_clean_swine.py \
   -i <INPUT_LIST> \
   -o <OUTPUT_DIR>
 
+```
+
 python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i ASFV_fastq_samples.txt -o Clean
+
 
 ## Common use-cases
 
@@ -85,11 +91,14 @@ First-time run (Auto-Download):
 
 Reusing existing references:
 
+
  - If reference already exists in --reference-dir, skips download.
 
  - If index exists in --index-dir, skips rebuilding.
 
 ## Output structure
+
+```bash
 
 <OUTPUT_DIR>/
 
@@ -99,6 +108,7 @@ Reusing existing references:
 │   └── sample2.clean.fastq.gz
 └── hostile.log
 
+```
 
 ### Environment setup for genomic analysis
 
@@ -107,12 +117,14 @@ conda env create -f AFSV_ont.yml
 conda activate AFSV_ont
 conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools medaka \
 multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
+
 ```
 
 ### Setup Kraken2 database
 
 ```bash
 bash scripts/setup_kraken_db.sh
+
 ```
 
 ---
