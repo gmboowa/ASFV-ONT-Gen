@@ -6,7 +6,7 @@
 ---
 
 ## Features
-- **Swine sequence removal** Hostile, accurate host read removal 
+- **Swine sequence removal**: Hostile, accurate host read removal 
 - **Quality control**: FastQC, NanoPlot, MultiQC
 - **Read mapping**: Minimap2
 - **Taxonomic classification**: Kraken2 with viral database
