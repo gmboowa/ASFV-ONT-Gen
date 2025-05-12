@@ -6,7 +6,7 @@
 ---
 
 ## Features
-
+- **Swine sequence removal** Hostile, accurate host read removal 
 - **Quality control**: FastQC, NanoPlot, MultiQC
 - **Read mapping**: Minimap2
 - **Taxonomic classification**: Kraken2 with viral database
@@ -29,6 +29,77 @@
 - [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
 
 - Java 21+ (for SnpEff)
+
+### Hostile clean Swine pipeline 
+
+## Dependencies
+
+Ensure these tools are installed in your environment:
+
+
+# Tool	Installation Command
+
+```bash
+
+ncbi-datasets-cli	conda install -c bioconda ncbi-datasets-cli
+minimap2	conda install -c bioconda minimap2
+hostile	conda install -c bioconda hostile
+
+
+# Install all dependencies in one command:
+
+conda create -n hostile_env -c bioconda ncbi-datasets-cli minimap2 hostile
+conda activate hostile_env
+
+Required Arguments:
+
+Argument	Description
+
+--fasta	NCBI accession (e.g., GCF_000003025.6) or path to existing FASTA file
+-i/--input	Text file listing paths to FASTQ files (one per line)
+-o/--output	Directory to store all results
+
+Optional Arguments:
+
+Argument	Default	Description
+--index-dir	minimap2_index	Directory for Minimap2 indexes
+--reference-dir	references	Directory for downloaded NCBI references
+
+
+### Basic Usage
+
+
+```bash
+
+python3 hostile_clean_swine.py \
+  --fasta <ACCESSION_OR_PATH> \
+  -i <INPUT_LIST> \
+  -o <OUTPUT_DIR>
+
+python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i ASFV_fastq_samples.txt -o Clean
+
+## Common use-cases
+
+First-time run (Auto-Download):
+
+ - Script downloads reference, builds index, and processes samples.
+
+Reusing existing references:
+
+ - If reference already exists in --reference-dir, skips download.
+
+ - If index exists in --index-dir, skips rebuilding.
+
+## Output structure
+
+<OUTPUT_DIR>/
+
+├── sample1_cleaned/
+│   └── sample1.clean.fastq.gz
+├── sample2_cleaned/
+│   └── sample2.clean.fastq.gz
+└── hostile.log
+
 
 ### Environment setup for genomic analysis
 
