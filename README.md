@@ -41,14 +41,10 @@ Ensure these tools are installed in your environment:
 
 ```bash
 
-ncbi-datasets-cli	conda install -c bioconda ncbi-datasets-cli
-minimap2	conda install -c bioconda minimap2
-hostile	conda install -c bioconda hostile
-
-
 # Install all dependencies in one command:
 
 conda create -n hostile_env -c bioconda ncbi-datasets-cli minimap2 hostile
+
 conda activate hostile_env
 
 Required arguments:
@@ -62,6 +58,7 @@ Argument	description
 Optional arguments:
 
 Argument	default	description
+
 --index-dir	minimap2_index	Directory for Minimap2 indexes
 --reference-dir	references	Directory for downloaded NCBI references
 
@@ -85,7 +82,7 @@ python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i ASFV_fastq_samples.txt
 
 ## Common use-cases
 
-First-time run (Auto-Download):
+First-time run (auto-download):
 
  - Script downloads reference, builds index, and processes samples.
 
