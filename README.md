@@ -39,7 +39,6 @@ Ensure these tools are installed in your environment:
 
 # Tool	Installation Command
 
-```bash
 
 ncbi-datasets-cli	conda install -c bioconda ncbi-datasets-cli
 minimap2	conda install -c bioconda minimap2
