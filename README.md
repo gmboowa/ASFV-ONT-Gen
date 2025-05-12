@@ -77,7 +77,7 @@ python3 hostile_clean_swine.py \
 
 ```
 
-python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i ASFV_fastq_samples.txt -o Clean
+python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i ASFV_fastq_samples_list.txt -o Clean
 
 
 ## Common use-cases
