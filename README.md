@@ -45,7 +45,7 @@ Ensure these tools are installed in your environment:
 
 conda create -n hostile_env -c bioconda ncbi-datasets-cli minimap2 hostile
 
-conda activate hostile_env
+conda activate hostile
 
 Required arguments:
 
