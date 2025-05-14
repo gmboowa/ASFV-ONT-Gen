@@ -135,18 +135,24 @@ bash scripts/setup_kraken_db.sh
 
 ```bash
 python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta -threads 8
+
 ```
+
 ### Example sample_list.txt
 
 ```bash
+
 /home/user/ASFV_data/Sample_01_ONT_reads.fastq.gz
 /home/user/ASFV_data/Sample_02_ONT_reads.fastq.gz
 /home/user/ASFV_data/Sample_03_ONT_reads.fastq.gz
----
+
+
+```
 
 ### Environment setup for phylogenetic analysis
 
 ```bash
+
 conda env create -f asfv_phylogeny.yml
 conda activate asfv_phylogeny
 ```
