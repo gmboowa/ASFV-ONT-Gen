@@ -159,6 +159,7 @@ asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
 ```
 
 ### Example fasta_sample.txt
+
 ```bash
 /home/user/ASFV_assemblies/Sample_01_assembly.fasta
 /home/user/ASFV_assemblies/Sample_02_assembly.fasta
@@ -190,7 +191,7 @@ asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
 
 ### Output structure
 
-```text
+
 results/
 ├── 00_RawDataQC/          # FastQC/NanoPlot reports
 ├── 01_Assemblies/         # Flye & Medaka outputs
