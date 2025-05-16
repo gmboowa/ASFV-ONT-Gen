@@ -123,7 +123,8 @@ multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
 ### Setup Kraken2 database
 
 ```bash
-bash scripts/setup_kraken_db.sh
+
+bash kraken_viral_db.sh
 
 ```
 
