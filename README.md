@@ -124,7 +124,7 @@ multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
 
 ```bash
 
-bash kraken_viral_db.sh
+bash /home/user/kraken_viral_db.sh
 
 ```
 
