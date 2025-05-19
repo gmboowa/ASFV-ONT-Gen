@@ -135,11 +135,12 @@ bash /home/user/kraken_viral_db.sh
 ### Run whole-genome analysis
 
 ```bash
-python AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta 
+
+python3 AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta 
 
 ```
 
-### Example sample_list.txt
+### Example fastq_sample.txt
 
 ```bash
 
@@ -162,7 +163,7 @@ conda activate asfv_phylogeny
 
 ```bash
 
-python3 asfv_phylogeny.py -r NC_044959.2.gb -i samples.test.fasta.txt -o results -t 8 -b 1000
+python3 asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
 
 ```
 
