@@ -25,8 +25,7 @@ Entrez.email = "gmboowa@gmail.com"
 
 BIOCONDA_TOOLS = [
     "fastqc", "nanoplot", "minimap2", "samtools", "bcftools", "medaka",
-    "multiqc", "spades", "kraken2", "mafft", "fasttree", "seqtk", 
-    "flye", "krona", "snpEff", "openjdk=21.0.1"
+    "multiqc", "spades", "kraken2", "mafft", "fasttree", "seqtk", "flye", "krona", "snpEff"
 ]
 
 TOOL_MAPPING = {
@@ -44,17 +43,16 @@ TOOL_MAPPING = {
     "seqtk": "seqtk",
     "flye": "flye",
     "krona": "ktImportText",
-    "snpEff": "snpEff",
-    "java": "java"
+    "snpEff": "snpEff"
 }
 
 mapped_reads_counts = []
-assembly_stats = []
+assembly_stats = []  # List to store assembly statistics
 
 os.environ["SNPEFF_HOME"] = str(Path.home() / "snpEff")
 
 MAPPED_READS_SUMMARY = Path("./results/mapped_reads_summary.tsv")
-ASSEMBLY_STATS_SUMMARY = Path("./results/assembly_stats_summary.tsv")
+ASSEMBLY_STATS_SUMMARY = Path("./results/assembly_stats_summary.tsv")  # Path for assembly stats output
 
 SUMMARY_DIR = Path("./results/summary")
 KRONA_DIR = Path("./results/krona")
@@ -94,11 +92,6 @@ def setup_directories():
 def ensure_dependencies():
     logging.info("Checking dependencies")
     missing = [pkg for pkg, cmd in TOOL_MAPPING.items() if shutil.which(cmd) is None]
-    
-    if "snpEff" in missing or "java" in missing:
-        run_cmd("conda install -y -c bioconda -c conda-forge snpEff openjdk=21.0.1")
-        missing = [pkg for pkg in missing if pkg not in ["snpEff", "java"]]
-    
     if missing:
         run_cmd(f"conda install -y -c bioconda -c conda-forge {' '.join(missing)}")
 
@@ -134,10 +127,13 @@ def summarize_kraken2_report(report_path, summary_dir):
         logging.error(f"Kraken2 summary failed for {sample_name}: {e}")
 
 def get_assembly_stats(assembly_fasta, sample, assembly_type):
+    """Calculate assembly statistics using samtools and custom Python code"""
     try:
+        # Get basic stats with samtools
         stats_cmd = f"samtools faidx {assembly_fasta}"
         run_cmd(stats_cmd)
         
+        # Read the .fai file to get contig lengths
         fai_file = f"{assembly_fasta}.fai"
         if not Path(fai_file).exists():
             raise FileNotFoundError(f"Index file {fai_file} not found")
@@ -155,6 +151,7 @@ def get_assembly_stats(assembly_fasta, sample, assembly_type):
         total_length = sum(contig_lengths)
         num_contigs = len(contig_lengths)
         
+        # Calculate N50
         half_length = total_length / 2
         cumulative_length = 0
         n50 = 0
@@ -164,6 +161,7 @@ def get_assembly_stats(assembly_fasta, sample, assembly_type):
                 n50 = length
                 break
                 
+        # Calculate L50
         l50 = 0
         cumulative_length = 0
         for length in contig_lengths:
@@ -172,7 +170,10 @@ def get_assembly_stats(assembly_fasta, sample, assembly_type):
             if cumulative_length >= half_length:
                 break
                 
+        # Calculate average contig length
         avg_length = total_length / num_contigs
+        
+        # Find largest contig
         largest_contig = contig_lengths[0]
         
         return {
@@ -185,26 +186,19 @@ def get_assembly_stats(assembly_fasta, sample, assembly_type):
             "L50": l50,
             "Average_Contig_Length": avg_length
         }
+        
     except Exception as e:
         logging.error(f"Failed to calculate {assembly_type} assembly stats for {sample}: {e}")
         return None
 
 def configure_snpeff(ref_fasta):
     genome_id = Path(ref_fasta).stem
-    conda_prefix = os.environ.get('CONDA_PREFIX', '')
-    snpeff_home = Path(conda_prefix) / "share/snpeff" if conda_prefix else Path.home() / "snpEff"
-    os.environ["SNPEFF_HOME"] = str(snpeff_home)
-    snpeff_home.mkdir(parents=True, exist_ok=True)
-
+    snpeff_home = Path(os.environ.get("SNPEFF_HOME", str(Path.home() / "snpEff")))
     jar_path = next(snpeff_home.rglob("snpEff.jar"), None)
-    
+
     if not jar_path:
-        logging.error("snpEff.jar not found! Attempting manual download...")
-        run_cmd(f"wget https://snpeff.blob.core.windows.net/versions/snpEff_latest_core.zip -P {snpeff_home}")
-        run_cmd(f"unzip {snpeff_home}/snpEff_latest_core.zip -d {snpeff_home}")
-        jar_path = next(snpeff_home.rglob("snpEff.jar"), None)
-        if not jar_path:
-            raise FileNotFoundError("snpEff.jar not found after manual download attempt")
+        logging.error("snpEff.jar not found")
+        raise FileNotFoundError("snpEff.jar not found")
 
     data_dir = snpeff_home / "data" / genome_id
     config_file = snpeff_home / "snpEff.config"
@@ -228,14 +222,16 @@ def configure_snpeff(ref_fasta):
         if not any(l.strip().startswith(f"{genome_id}.genome") for l in lines):
             with open(config_file, "a") as f:
                 f.write(f"\n{genome_line}\n")
+            logging.info(f"Added genome entry to config: {genome_line}")
     else:
         config_file.write_text(genome_line + "\n")
+        logging.info(f"Created config file with entry: {genome_line}")
 
     try:
         run_cmd(f"java -Xmx4g -jar {jar_path} build -genbank -v {genome_id} -c {config_file}")
         snpeff_db_path = snpeff_home / "data" / genome_id
         if not any(snpeff_db_path.glob("*.bin")):
-            raise RuntimeError(f"snpEff database for {genome_id} not created properly")
+            raise RuntimeError(f"snpEff database for {genome_id} not created properly in {snpeff_db_path}")
     except Exception as e:
         logging.warning(f"snpEff build failed: {e}")
         return genome_id, None, None
@@ -252,11 +248,13 @@ def extract_sample(fq, ref_fasta, sample_dir, sample, genome_id, jar_path, confi
     vcf = sample_dir / f"{sample}_variants.vcf.gz"
     kraken_report = sample_dir / "kraken2_report.txt"
     
+    # Create distinct directories for each assembly type
     denovo_dir = sample_dir / "denovo_assembly"
     reference_dir = sample_dir / "reference_assembly"
     variant_txt = sample_dir / f"{sample}_variant_summary.txt"
 
     try:
+        # Mapping and read processing
         run_cmd(f"minimap2 -ax map-ont {ref_fasta} {fq} | samtools view -Sb - > {bam}")
         run_cmd(f"samtools sort -o {sorted_bam} {bam}")
         run_cmd(f"samtools index {sorted_bam}")
@@ -266,30 +264,36 @@ def extract_sample(fq, ref_fasta, sample_dir, sample, genome_id, jar_path, confi
         read_count = sum(1 for _ in open(dedup_fq)) // 4
         mapped_reads_counts.append({"Sample": sample, "Extracted_Mapped_Reads": dedup_fq.name, "Read_Count": read_count})
 
+        # Taxonomic classification
         run_cmd(f"kraken2 --db {kraken_db} --threads 4 --report {kraken_report} --output {sample_dir}/kraken2_output.txt {dedup_fq}")
         summarize_kraken2_report(kraken_report, "./results/summary")
 
         if should_call_variants(dedup_fq):
+            # Step 1: De novo assembly in its own directory
             print(f"\n🔬 Performing DE NOVO assembly for {sample}")
             denovo_dir.mkdir(exist_ok=True)
             run_cmd(f"flye --nano-raw {dedup_fq} --out-dir {denovo_dir} --threads 4")
             
+            # Get de novo assembly statistics
             denovo_assembly_fasta = denovo_dir / "assembly.fasta"
             if denovo_assembly_fasta.exists():
                 stats = get_assembly_stats(denovo_assembly_fasta, sample, "de_novo")
                 if stats:
                     assembly_stats.append(stats)
             
+            # Step 2: Reference-based assembly in its own directory
             print(f"\n🧬 Performing REFERENCE-BASED assembly for {sample}")
             reference_dir.mkdir(exist_ok=True)
             run_cmd(f"medaka_consensus -i {dedup_fq} -d {ref_fasta} -o {reference_dir} -t 4 -m r941_min_high_g360")
             
+            # Get reference-based assembly statistics
             ref_assembly_fasta = reference_dir / "consensus.fasta"
             if ref_assembly_fasta.exists():
                 stats = get_assembly_stats(ref_assembly_fasta, sample, "reference_based")
                 if stats:
                     assembly_stats.append(stats)
             
+            # Variant calling (keeps original location)
             run_cmd(f"bcftools mpileup -f {ref_fasta} {sorted_bam} | bcftools call -mv -Oz -o {vcf}")
             run_cmd(f"bcftools index {vcf}")
             if jar_path and config_file:
@@ -331,6 +335,7 @@ def main():
     if mapped_reads_counts:
         pd.DataFrame(mapped_reads_counts).to_csv(MAPPED_READS_SUMMARY, sep="\t", index=False)
     
+    # Save assembly statistics
     if assembly_stats:
         pd.DataFrame(assembly_stats).to_csv(ASSEMBLY_STATS_SUMMARY, sep="\t", index=False)
 
