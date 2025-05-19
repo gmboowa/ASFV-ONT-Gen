@@ -161,7 +161,8 @@ conda activate asfv_phylogeny
 ### Run phylogenetic inference
 
 ```bash
-asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -o results -b 1000
+
+python3 asfv_phylogeny.py -r NC_044959.2.gb -i samples.test.fasta.txt -o results -t 8 -b 1000
 
 ```
 
