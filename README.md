@@ -18,8 +18,6 @@
 
 ---
 ### Pipeline workflow
-
-
 ![Pipeline Workflow](ASFV-ONT-Gen_Workflow.png)
 
 ## Installation
@@ -30,7 +28,7 @@
 
 - Java 21+ (for SnpEff)
 
-### Hostile clean Swine pipeline 
+### Hostile clean swine pipeline 
 
 ## Dependencies
 
@@ -81,7 +79,7 @@ python3 hostile_clean_swine.py \
 ```
 ```bash
 
-python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i ASFV_fastq_samples_list.txt -o Clean
+python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i fastq_samples_list.txt -o Clean
 
 
 ```
@@ -133,7 +131,7 @@ multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
 ```bash
 
 chmod +x kraken_viral_db.sh
-bash /home/user/kraken_viral_db.sh
+bash ~/kraken_viral_db.sh
 
 ```
 
@@ -145,7 +143,7 @@ bash /home/user/kraken_viral_db.sh
 
 ```bash
 
-python3 AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta 
+python3 AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta --threads 8
 
 ```
 
@@ -153,9 +151,9 @@ python3 AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta
 
 ```bash
 
-/home/user/ASFV_data/Sample_01_ONT_reads.fastq.gz
-/home/user/ASFV_data/Sample_02_ONT_reads.fastq.gz
-/home/user/ASFV_data/Sample_03_ONT_reads.fastq.gz
+~/Sample_01_ONT_reads.fastq.gz
+~/Sample_02_ONT_reads.fastq.gz
+~/Sample_03_ONT_reads.fastq.gz
 
 
 ```
@@ -179,9 +177,9 @@ python3 asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 
 ### Example fasta_sample.txt
 
 ```bash
-/home/user/ASFV_assemblies/Sample_01_assembly.fasta
-/home/user/ASFV_assemblies/Sample_02_assembly.fasta
-/home/user/ASFV_assemblies/Sample_03_assembly.fasta
+~/Sample_01_assembly.fasta
+~/Sample_02_assembly.fasta
+~/Sample_03_assembly.fasta
 ---
 
 ## Inputs and outputs
