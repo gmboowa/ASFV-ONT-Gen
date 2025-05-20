@@ -50,17 +50,20 @@ conda activate hostile
 Required arguments:
 
 Argument	description
-
---fasta	NCBI accession (e.g., GCF_000003025.6) or path to existing FASTA file
--i/--input	Text file listing paths to FASTQ files (one per line)
--o/--output	Directory to store all results
+| Option           | Description                                                               |
+|------------------|---------------------------------------------------------------------------|
+| `--fasta`        | NCBI accession (e.g., `GCF_000003025.6`) or path to existing FASTA file   |
+| `-i`, `--input`  | Text file listing paths to FASTQ files (one per line)                     |
+| `-o`, `--output` | Directory to store all results                                            |
 
 Optional arguments:
 
 Argument	default	description
 
---index-dir	minimap2_index	Directory for Minimap2 indexes
---reference-dir	references	Directory for downloaded NCBI references
+| Option             | Default Value       | Description                                      |
+|--------------------|---------------------|--------------------------------------------------|
+| `--index-dir`      | `minimap2_index`    | Directory for Minimap2 indexes                   |
+| `--reference-dir`  | `references`        | Directory for downloaded NCBI references         |
 
 
 ```
