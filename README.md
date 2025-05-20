@@ -1,7 +1,7 @@
 
 # ASFV-ONT-Gen: A pipeline for African swine fever virus ONT whole-genome analysis
 
-**ASFV-ONT-Gen** is a modular pipeline for analyzing whole-genome sequencing data of African Swine Fever Virus (ASFV) using Oxford Nanopore Technologies (ONT). It covers preprocessing, assembly, annotation, and phylogenetic analysis using a reference genome such as `NC_044959.2.fasta`.
+**ASFV-ONT-Gen** is a modular pipeline for analyzing whole-genome sequencing data of *African Swine Fever Virus* (ASFV) using Oxford Nanopore Technologies (ONT). It covers preprocessing, assembly, annotation & phylogenetic analysis using a reference genome such as `NC_044959.2.fasta`.
 
 ---
 
@@ -11,7 +11,7 @@
 - **Read mapping**: Minimap2
 - **Taxonomic classification**: Kraken2 with viral database
 - **Assembly**: De novo (Flye + Medaka polish) & reference-based
-- **Variant calling & annotation**: BCFtools and SnpEff
+- **Variant calling & annotation**: BCFtools & SnpEff
 - **Multi-threading**: Efficient parallel processing
 - **Summary reports**: MultiQC, assembly stats, mapping summaries
 - **Phylogenetics**: MAFFT, IQ-TREE, and ggtree
@@ -87,7 +87,7 @@ python3 hostile_clean_swine.py --fasta GCF_000003025.6 -i ASFV_fastq_samples_lis
 
 First-time run (auto-download):
 
- - Script downloads reference, builds index, and processes samples.
+ - Script downloads reference, builds index & processes samples.
 
 Reusing existing references:
 
@@ -113,8 +113,10 @@ Reusing existing references:
 ### Environment setup for genomic analysis
 
 ```bash
+chmod +x install_snpeff.sh
 conda env create -f AFSV_ont.yml
 conda activate AFSV_ont
+./install_snpeff.sh
 conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools medaka \
 multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
 
