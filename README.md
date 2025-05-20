@@ -121,8 +121,10 @@ conda activate AFSV_ont
 ./install_snpeff.sh
 ./install_krona_taxonomy.sh
 
-conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools medaka \
-multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
+conda install -y -c bioconda -c conda-forge \
+    fastqc nanoplot minimap2 samtools bcftools medaka \
+    multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff \
+    plotly pandas
 
 ```
 
