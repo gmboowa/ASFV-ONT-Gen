@@ -114,9 +114,12 @@ Reusing existing references:
 
 ```bash
 chmod +x install_snpeff.sh
+chmod +x install_krona_taxonomy.sh
 conda env create -f AFSV_ont.yml
 conda activate AFSV_ont
 ./install_snpeff.sh
+./install_krona_taxonomy.sh
+
 conda install -c bioconda -c conda-forge fastqc nanoplot minimap2 samtools bcftools medaka \
 multiqc spades kraken2 mafft fasttree seqtk flye krona snpeff -y
 
