@@ -48,6 +48,30 @@ def setup_directories(results_dir):
         (results_dir / subdir).mkdir(parents=True, exist_ok=True)
     return SUMMARY_DIR, KRONA_DIR
 
+def create_multiqc_config(results_dir):
+    config_content = """\
+table_columns_visible:
+  fastqc_top_overrepresented_sequences_table: False
+
+table_columns_hidden:
+  fastqc_top_overrepresented_sequences_table: True
+
+suppress_errors: true
+"""
+    config_path = results_dir / "multiqc" / "multiqc_config.yaml"
+    with open(config_path, 'w') as f:
+        f.write(config_content)
+    return config_path
+
+def quality_control(fastq_list, results_dir):
+    for fq in fastq_list:
+        run_cmd(f"fastqc {fq} -o {results_dir}/qc")
+        run_cmd(
+            f"nanoplot --fastq {fq} -o {results_dir}/nanoplot "
+            f"--minlength 100 --downsample 10000 --plots dot "
+            f"--title {Path(fq).stem} --loglength"
+        )
+
 def run_cmd(cmd):
     logging.info(f"Running command: {cmd}")
     try:
@@ -167,11 +191,6 @@ def should_call_variants(fq_path):
     path = Path(fq_path)
     return path.exists() and path.stat().st_size > 0
 
-def quality_control(fastq_list, results_dir):
-    for fq in fastq_list:
-        run_cmd(f"fastqc {fq} -o {results_dir}/qc")
-        run_cmd(f"nanoplot --fastq {fq} -o {results_dir}/nanoplot")
-
 def summarize_kraken2_report(report_path, sample_name):
     try:
         df = pd.read_csv(report_path, sep="\t", header=None, names=[
@@ -184,6 +203,7 @@ def summarize_kraken2_report(report_path, sample_name):
     except Exception as e:
         logging.error(f"Kraken2 summary failed for {sample_name}: {e}")
         return None
+
 def get_assembly_stats(assembly_fasta, sample, assembly_type):
     try:
         run_cmd(f"samtools faidx {assembly_fasta}")
@@ -283,6 +303,7 @@ def extract_sample(fq, ref_fasta, sample_dir, sample, genome_id, jar_path, confi
     except Exception as e:
         logging.error(f"Processing sample {sample} failed: {e}")
         return None, None
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -294,6 +315,7 @@ def main():
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     results_dir = Path(f"results_{timestamp}")
     summary_dir, krona_dir = setup_directories(results_dir)
+    multiqc_config = create_multiqc_config(results_dir)
 
     print("\n🚀 Starting pre-run verification checks")
     ensure_java_version()
@@ -338,6 +360,7 @@ def main():
         combined_kraken.to_csv(kraken_summary_file, index=False)
         print(f"✅ Saved combined Kraken2 report to {kraken_summary_file}")
 
+
     if len(kraken_output_files) > 1:
         combined_krona_output = krona_dir / "combined_krona.html"
         combined_kraken_temp = krona_dir / "combined_kraken_temp.txt"
@@ -354,8 +377,9 @@ def main():
         finally:
             combined_kraken_temp.unlink(missing_ok=True)
 
-    run_cmd(f"multiqc {results_dir}/qc -o {results_dir}/multiqc --force")
+    run_cmd(f"multiqc {results_dir}/qc -o {results_dir}/multiqc --force --ignore violin")
 
+	
     mapped_reads_summary = summary_dir / "mapped_reads_summary.tsv"
     assembly_stats_summary = summary_dir / "assembly_stats_summary.tsv"
 
