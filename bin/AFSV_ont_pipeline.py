@@ -101,15 +101,31 @@ def ensure_java_version():
 
 def configure_snpeff(ref_fasta):
     genome_id = Path(ref_fasta).stem
-    snpeff_home = Path(os.environ.get("SNPEFF_HOME", str(Path.home() / "snpEff")))
-    jar_path = next(snpeff_home.rglob("snpEff.jar"), None)
 
-    if not jar_path:
-        logging.error("snpEff.jar not found")
-        raise FileNotFoundError("snpEff.jar not found")
+    # Locate active conda environment
+    conda_prefix = Path(os.environ.get("CONDA_PREFIX", ""))
+    if not conda_prefix or not conda_prefix.exists():
+        raise EnvironmentError("Conda environment not detected or CONDA_PREFIX not set.")
 
-    data_dir = snpeff_home / "data" / genome_id
+    # Search for snpEff.jar in conda environment share directory
+    jar_path = next(conda_prefix.rglob("snpEff.jar"), None)
+
+    # If not found, install snpEff
+    if not jar_path or not jar_path.exists():
+        print("⚠️ snpEff.jar not found in current conda environment. Attempting to install via conda...")
+        try:
+            run_cmd("conda install -y -c bioconda snpeff")
+            jar_path = next(conda_prefix.rglob("snpEff.jar"), None)
+        except Exception as e:
+            logging.error(f"Failed to install snpEff: {e}")
+            raise FileNotFoundError("Failed to install snpEff via conda.")
+
+    if not jar_path or not jar_path.exists():
+        raise FileNotFoundError("❌ snpEff.jar still not found after installation.")
+
+    snpeff_home = jar_path.parent.parent
     config_file = snpeff_home / "snpEff.config"
+    data_dir = snpeff_home / "data" / genome_id
     data_dir.mkdir(parents=True, exist_ok=True)
 
     gbk_file = data_dir / "genes.gbk"
