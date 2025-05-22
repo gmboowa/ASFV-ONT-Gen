@@ -166,6 +166,7 @@ python3 AFSV_ont_pipeline.py -inputs fastq_sample.txt -reference reference.fasta
 
 conda env create -f asfv_phylogeny.yml
 conda activate asfv_phylogeny
+conda install -c conda-forge r-aptreeshape
 ```
 
 ### Run phylogenetic inference
