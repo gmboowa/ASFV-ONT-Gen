@@ -172,7 +172,7 @@ conda activate asfv_phylogeny
 
 ```bash
 
-python3 asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -o results -t 8 -b 1000
+python3 asfv_phylogeny.py -r NC_044959.2.gb -i fasta_sample.txt -t 8 -b 1000
 
 ```
 
