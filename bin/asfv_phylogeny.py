@@ -63,27 +63,43 @@ def visualize_tree_with_ete3(treefile, output_dir):
         nstyle = NodeStyle()
         nstyle["fgcolor"] = "black"
         nstyle["size"] = 5
+        nstyle["vt_line_color"] = "#555555"
+        nstyle["hz_line_color"] = "#555555"
+        nstyle["vt_line_width"] = 2
+        nstyle["hz_line_width"] = 2
+        nstyle["draw_descendants"] = True
+
         if not node.is_leaf():
             try:
                 support = float(node.name.split("/")[0]) if "/" in node.name else float(node.name)
-                nstyle["fgcolor"] = "red" if support < 70 else "green"
+                node.name = f"{support:.1f}"
+                if support >= 90:
+                    nstyle["fgcolor"] = "green"
+                elif support >= 70:
+                    nstyle["fgcolor"] = "orange"
+                else:
+                    nstyle["fgcolor"] = "red"
                 nstyle["size"] = 6
             except ValueError:
                 pass
+
         node.set_style(nstyle)
 
+        if node.is_leaf():
+            name_face = TextFace(node.name, fsize=12, fgcolor="black")
+            name_face.margin_right = 10
+            node.add_face(name_face, column=0, position="branch-right")
+
     ts = TreeStyle()
-    ts.show_leaf_name = True
+    ts.show_leaf_name = False
     ts.show_branch_support = True
-    ts.title.add_face(TextFace("ASFV Phylogenetic Tree (ETE3)", fsize=14), column=0)
+    #ts.ladderize = False
+    ts.branch_vertical_margin = 30
+    ts.min_leaf_separation = 20
+    ts.scale = 150
+    ts.title.add_face(TextFace("ASFV Phylogenetic Tree (ETE3)", fsize=16, bold=True), column=0)
 
-    # Improve layout spacing
-    ts.scale = 120  # Increase horizontal scale of branches
-    ts.branch_vertical_margin = 20  # Space between nodes
-    ts.min_leaf_separation = 10  # Prevent vertical overlap
-
-    # Render to high-res image
-    tree.render(f"{output_dir}/asfv_ete3_tree.png", w=1800, dpi=200, tree_style=ts)
+    tree.render(f"{output_dir}/asfv_ete3_tree.png", w=2200, dpi=300, tree_style=ts)
     print(f"✅ ETE3 tree saved to {output_dir}/asfv_ete3_tree.png")
 
 def run_analysis(args, samples, output_dir, reference):
