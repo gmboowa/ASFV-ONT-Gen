@@ -20,7 +20,8 @@ dependencies:
   - r-base=4.2
   - bioconductor-ggtree
   - r-ape=5.7
-  - r-ggplot2=3.4.2  # this is ggplot2 for R
+  - r-ggplot2=3.4.2
+  - r-svglite=2.1.1  # Enables saving ggplot2 plots as SVG
 
   # Python libraries
   - biopython=1.81
