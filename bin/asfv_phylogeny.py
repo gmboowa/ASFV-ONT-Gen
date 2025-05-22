@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Robust Phylogenetic Analysis Pipeline for ASFV with CLI arguments
+ASFV Phylogenetic Pipeline with ETE3 Visualization
 """
 
 import os
@@ -10,6 +10,7 @@ import subprocess
 import multiprocessing
 from Bio import SeqIO
 from datetime import datetime
+from ete3 import Tree, TreeStyle, NodeStyle, TextFace
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='ASFV Phylogenetic Analysis Pipeline')
@@ -21,10 +22,8 @@ def parse_arguments():
     return parser.parse_args()
 
 def setup_environment(args):
-    # Update the output directory format to include date and time
     output_dir = args.output or f"results_phylo_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     os.makedirs(output_dir, exist_ok=True)
-    
     ref_path = args.reference
     if ref_path.lower().endswith(('.gb', '.gbk')):
         fasta_ref = os.path.join(output_dir, 'reference.fasta')
@@ -44,11 +43,48 @@ def validate_samples(sample_file):
         records = list(SeqIO.parse(path, 'fasta'))
         if len(records) != 1:
             raise SystemExit(f"ERROR: {path} contains multiple sequences")
-        seq_len = len(records[0].seq)
-        if seq_len < 170000:
-            print(f"WARNING: {path} is unusually short ({seq_len} bp)")
         valid_samples.append(path)
     return valid_samples
+
+def clean_iqtree_newick(infile, outfile):
+    with open(infile) as fin, open(outfile, "w") as fout:
+        tree_str = fin.read().strip()
+        cleaned = tree_str.replace("'", "")
+        fout.write(cleaned + "\n")
+
+def visualize_tree_with_ete3(treefile, output_dir):
+    try:
+        tree = Tree(treefile, format=1)
+    except Exception as e:
+        print(f"❌ ETE3 tree parsing error: {e}")
+        return
+
+    for node in tree.traverse():
+        nstyle = NodeStyle()
+        nstyle["fgcolor"] = "black"
+        nstyle["size"] = 5
+        if not node.is_leaf():
+            try:
+                support = float(node.name.split("/")[0]) if "/" in node.name else float(node.name)
+                nstyle["fgcolor"] = "red" if support < 70 else "green"
+                nstyle["size"] = 6
+            except ValueError:
+                pass
+        node.set_style(nstyle)
+
+    ts = TreeStyle()
+    ts.show_leaf_name = True
+    ts.show_branch_support = True
+    ts.title.add_face(TextFace("ASFV Phylogenetic Tree (ETE3)", fsize=14), column=0)
+
+    # Improve layout spacing
+    ts.scale = 120  # Increase horizontal scale of branches
+    ts.branch_vertical_margin = 20  # Space between nodes
+    ts.min_leaf_separation = 10  # Prevent vertical overlap
+
+    # Render to high-res image
+    tree.render(f"{output_dir}/asfv_ete3_tree.png", w=1800, dpi=200, tree_style=ts)
+    print(f"✅ ETE3 tree saved to {output_dir}/asfv_ete3_tree.png")
 
 def run_analysis(args, samples, output_dir, reference):
     print("\n=== Running MAFFT Alignment ===")
@@ -57,83 +93,49 @@ def run_analysis(args, samples, output_dir, reference):
         seen_ids = set()
         for fasta_file in all_inputs:
             for record in SeqIO.parse(fasta_file, "fasta"):
-                orig_id = record.id
-                new_id = orig_id
-                counter = 1
-                while new_id in seen_ids:
-                    new_id = f"{orig_id}_{counter}"
-                    counter += 1
-                record.id = record.name = record.description = new_id
-                seen_ids.add(new_id)
+                base_id = record.id
+                while base_id in seen_ids:
+                    base_id += "_dup"
+                record.id = record.name = record.description = base_id
+                seen_ids.add(base_id)
                 SeqIO.write(record, combined_fasta, "fasta")
         tmp_path = combined_fasta.name
 
-    mafft_cmd = [
-        "mafft", "--thread", str(args.threads), "--auto", "--reorder", "--adjustdirection",
-        "--anysymbol", "--namelength", "1000", tmp_path
-    ]
-    try:
-        with open(f"{output_dir}/alignment.fasta", "w") as outfile:
-            result = subprocess.run(mafft_cmd, stdout=outfile, stderr=subprocess.PIPE, text=True, check=True)
-            if result.stderr:
-                print("MAFFT Alignment Warnings:\n", result.stderr)
-    except subprocess.CalledProcessError as e:
-        print(f"\nMAFFT Alignment Failed!\nError: {e.stderr}")
-        raise SystemExit(1)
-    finally:
-        os.remove(tmp_path)
+    subprocess.run([
+        "mafft", "--thread", str(args.threads), "--auto", "--reorder",
+        "--adjustdirection", "--anysymbol", "--namelength", "1000", tmp_path
+    ], stdout=open(f"{output_dir}/alignment.fasta", "w"), check=True)
+    os.remove(tmp_path)
 
     print("\n=== Trimming Alignment ===")
-    trimal_cmd = [
-        "trimal", "-in", f"{output_dir}/alignment.fasta", "-out", f"{output_dir}/trimmed_alignment.fasta",
-        "-gt", "0.9", "-cons", "60"
-    ]
-    subprocess.run(trimal_cmd, check=True)
+    subprocess.run([
+        "trimal", "-in", f"{output_dir}/alignment.fasta",
+        "-out", f"{output_dir}/trimmed_alignment.fasta", "-gt", "0.9", "-cons", "60"
+    ], check=True)
 
-    print("\n=== Building Phylogenetic Tree (with ModelFinder) ===")
-    for f in os.listdir(output_dir):
-        if f.startswith("asfv_tree"):
-            os.remove(os.path.join(output_dir, f))
-
-    iqtree_cmd = [
+    print("\n=== Running IQ-TREE ===")
+    tree_prefix = f"{output_dir}/asfv_tree"
+    subprocess.run([
         "iqtree", "-s", f"{output_dir}/trimmed_alignment.fasta", "-m", "MFP",
-        "-bb", str(args.bootstrap), "-alrt", "1000", "-nt", str(min(args.threads, multiprocessing.cpu_count())),
-        "--redo", "-czb", "-seed", "12345", "-pre", f"{output_dir}/asfv_tree"
-    ]
-    try:
-        subprocess.run(iqtree_cmd, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"\nIQ-TREE Failed! Error: {e.stderr}")
-        print("Attempting automatic thread configuration...")
-        if "-nt" in iqtree_cmd:
-            nt_index = iqtree_cmd.index("-nt")
-            iqtree_cmd[nt_index + 1] = "AUTO"
-        subprocess.run(iqtree_cmd, check=True)
+        "-bb", str(args.bootstrap), "-nt", str(args.threads),
+        "--redo", "-czb", "-seed", "12345", "-pre", tree_prefix
+    ], check=True)
 
-    print("\n=== Generating Visualization ===")
-    r_script = f"""    library(ggplot2)
-    library(ggtree)
-    library(ape)
+    print("\n=== Generating ETE3 Visualization ===")
+    clean_iqtree_newick(f"{tree_prefix}.treefile", f"{output_dir}/cleaned_tree.nwk")
+    visualize_tree_with_ete3(f"{output_dir}/cleaned_tree.nwk", output_dir)
 
-    tree <- read.tree("{output_dir}/asfv_tree.treefile")
-    p <- ggtree(tree, layout = "rectangular") +
-        geom_tiplab(size = 3) +
-        geom_nodelab(aes(label=label, color=as.numeric(label)), size=3) +
-        scale_color_gradient2(low="gray", mid="blue", high="red", midpoint=70, name="Bootstrap") +
-        theme_tree2() +
-        ggtitle("ASFV Phylogeny (IQ-TREE, Bootstrap Support)")
-
-    ggsave("{output_dir}/asfv_phylogeny.pdf", plot = p, width = 12, height = 8)
-    ggsave("{output_dir}/asfv_phylogeny.svg", plot = p, width = 12, height = 8)
-    """
-    with open(f"{output_dir}/visualize_tree.R", "w") as f:
-        f.write(r_script)
-    subprocess.run(["Rscript", f"{output_dir}/visualize_tree.R"], check=True)
-
-    print("\n=== Writing Summary Report ===")
+    print("\n=== Writing Summary ===")
     alignment_file = f"{output_dir}/trimmed_alignment.fasta"
     summary_file = f"{output_dir}/summary.txt"
-    iqtree_log = f"{output_dir}/asfv_tree.iqtree"
+    iqtree_log = f"{tree_prefix}.iqtree"
+    model = "Unknown"
+    if os.path.exists(iqtree_log):
+        with open(iqtree_log) as f:
+            for line in f:
+                if "Best-fit model:" in line:
+                    model = line.split(":")[-1].strip()
+                    break
 
     num_seqs, aln_len = 0, 0
     with open(alignment_file) as f:
@@ -143,43 +145,22 @@ def run_analysis(args, samples, output_dir, reference):
             else:
                 aln_len += len(line.strip())
 
-    model = "Unknown"
-    if os.path.exists(iqtree_log):
-        with open(iqtree_log) as f:
-            for line in f:
-                if "Best-fit model:" in line:
-                    model = line.strip().split(":")[-1].strip()
-                    break
-
     with open(summary_file, "w") as f:
         f.write("ASFV Phylogenetic Pipeline Summary\n")
-        f.write("==================================\n\n")
+        f.write("==================================\n")
         f.write(f"Alignment file: {alignment_file}\n")
-        f.write(f"Number of sequences: {num_seqs}\n")
+        f.write(f"Sequences: {num_seqs}\n")
         f.write(f"Alignment length: {aln_len} bp\n")
-        f.write(f"IQ-TREE best-fit model: {model}\n\n")
-        f.write("Commands used:\n")
-        f.write("MAFFT:\n")
-        f.write("  mafft --thread {args.threads} --auto --reorder --adjustdirection \
---anysymbol --namelength 1000 input.fasta > alignment.fasta\n")
-        f.write("IQ-TREE:\n")
-        f.write(f"  {' '.join(iqtree_cmd)}\n")
+        f.write(f"IQ-TREE Model: {model}\n")
+        f.write("Command: MAFFT, TRIMAL, IQ-TREE, ETE3\n")
 
-    print(f"✅ Summary written to {summary_file}")
+    print(f"✅ Summary saved to {summary_file}")
 
 def main():
     args = parse_arguments()
     output_dir, reference = setup_environment(args)
     samples = validate_samples(args.input)
-    print(f"\nStarting ASFV Phylogenetic Analysis with:")
-    print(f"- Reference genome: {args.reference}")
-    print(f"- Samples: {len(samples)} assemblies")
-    print(f"- Threads: {args.threads}")
-    print(f"- Bootstrap replicates: {args.bootstrap}")
-    print(f"- Output directory: {output_dir}")
     run_analysis(args, samples, output_dir, reference)
-    print("\nAnalysis successfully completed!")
-    print(f"Results available in: {output_dir}")
 
 if __name__ == "__main__":
     main()
