@@ -5,30 +5,37 @@ channels:
   - defaults
 
 dependencies:
-  # Core environment
+  # Core
   - python=3.10
   - pip=23.1.2
 
-  # Sequence alignment and phylogenetic tools
+  # Phylogenetics and alignment tools
   - mafft=7.505
   - iqtree=2.2.2.7
   - trimal=1.4.1
   - modeltest-ng=0.1.7
   - fasttree=2.1.11
 
-  # Biopython for sequence parsing
+  # BioPython
   - biopython=1.81
 
-  # R and phylogenetics visualization/statistics
+  # ETE3 for phylogenetic tree rendering (Python-based)
+  - ete3=3.1.2
+  - pyqt  # Required for ete3 rendering
+
+  # R and visualization/statistics packages
   - r-base=4.2
   - r-ggplot2=3.4.2
   - r-ape=5.7
+  - r-phangorn           # Tree statistics (height, imbalance)
   - r-svglite=2.1.1       # Save SVG plots
   - r-cairo               # Render PDF plots
-  - r-optparse            # R script CLI parsing
-  - r-phangorn            # For tree statistics (tree height, imbalance)
-  - r-aptreeshape           
+  - r-optparse            # For Rscript CLI
+  - r-aptreeshape         # For tree imbalance metrics
   - bioconductor-ggtree   # Tree visualization
 
+  # Optional: phytools not always available on conda
+  # If needed, install this via R inside the environment:
+  # install.packages("phytools")
   # Optional: Required for Nexus support in some cases
   - r-phytools            # Note: May not be available via conda on all platforms
