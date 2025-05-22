@@ -29,6 +29,7 @@ def setup_environment(args):
         fasta_ref = os.path.join(output_dir, 'reference.fasta')
         with open(fasta_ref, 'w') as f_out:
             record = SeqIO.read(ref_path, 'genbank')
+            record.id = record.name = record.description = record.id.replace("_R_", "")
             SeqIO.write(record, f_out, 'fasta')
         return output_dir, fasta_ref
     return output_dir, ref_path
@@ -43,6 +44,9 @@ def validate_samples(sample_file):
         records = list(SeqIO.parse(path, 'fasta'))
         if len(records) != 1:
             raise SystemExit(f"ERROR: {path} contains multiple sequences")
+        # Clean record ID
+        for r in records:
+            r.id = r.name = r.description = r.id.replace("_R_", "")
         valid_samples.append(path)
     return valid_samples
 
@@ -86,17 +90,18 @@ def visualize_tree_with_ete3(treefile, output_dir):
         node.set_style(nstyle)
 
         if node.is_leaf():
-            name_face = TextFace(node.name, fsize=12, fgcolor="black")
+            label = node.name.replace("_R_", "")  # Final cleanup safeguard
+            name_face = TextFace(label, fsize=12, fgcolor="black")
             name_face.margin_right = 10
             node.add_face(name_face, column=0, position="branch-right")
 
     ts = TreeStyle()
     ts.show_leaf_name = False
     ts.show_branch_support = True
-    #ts.ladderize = False
     ts.branch_vertical_margin = 30
     ts.min_leaf_separation = 20
     ts.scale = 150
+    ts.show_scale = True
     ts.title.add_face(TextFace("ASFV Phylogenetic Tree (ETE3)", fsize=16, bold=True), column=0)
 
     tree.render(f"{output_dir}/asfv_ete3_tree.png", w=2200, dpi=300, tree_style=ts)
@@ -109,11 +114,11 @@ def run_analysis(args, samples, output_dir, reference):
         seen_ids = set()
         for fasta_file in all_inputs:
             for record in SeqIO.parse(fasta_file, "fasta"):
-                base_id = record.id
-                while base_id in seen_ids:
-                    base_id += "_dup"
-                record.id = record.name = record.description = base_id
-                seen_ids.add(base_id)
+                clean_id = record.id.replace("_R_", "").replace(" ", "_")
+                while clean_id in seen_ids:
+                    clean_id += "_dup"
+                record.id = record.name = record.description = clean_id
+                seen_ids.add(clean_id)
                 SeqIO.write(record, combined_fasta, "fasta")
         tmp_path = combined_fasta.name
 
@@ -180,3 +185,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
